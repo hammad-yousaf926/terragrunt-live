@@ -15,3 +15,8 @@ workflows:
     apply:
       steps:
         - apply
+projects:
+- name: prod
+  dir: accounts/ndgov-prod/us-east-1/s3
+- name: stage
+  dir: accounts/ndgov-stage/us-east1/s3

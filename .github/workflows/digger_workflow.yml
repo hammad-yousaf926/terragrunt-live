@@ -1,59 +1,12 @@
-# name: Digger
-
-# on:
-#   pull_request:
-#     branches:
-#       - main
-#       - master
-#     types: [ closed, opened, synchronize, reopened ]
-#   issue_comment:
-#     types: [created]
-#     if: contains(github.event.comment.body, 'digger')
-#   workflow_dispatch:
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     steps:
-
-#       - name: Checkout code
-#         uses: actions/checkout@v3
-
-#       - name: Setup AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v2
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: us-east-1
-
-#       - name: Digger run
-#         uses: diggerhq/digger@latest
-#         with:
-#           setup-aws: true
-#           setup-terragrunt: true
-#           terragrunt-version: 0.44.1
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#           GITHUB_CONTEXT: ${{ toJson(github) }}
-#           ENABLE_POLICY_CHECKS: "false"
-#           SKIP_POLICY_CHECK: "true"
-#           LOCK_PROVIDER: aws
-#           AWS_REGION: us-east-1
-#           LOG_LEVEL: debug
-#           TF_LOG: DEBUG
-
 name: Digger Workflow
 
 on:
-  pull_request:
-    branches:
-      - main
-      - master
-    types: [ closed, opened, synchronize, reopened ]
-  issue_comment:
-    types: [created]
-    if: contains(github.event.comment.body, 'digger')
   workflow_dispatch:
+    inputs:
+      spec:
+        required: true
+      run_name:
+        required: false
 
 run-name: '${{inputs.run_name}}'
 
@@ -70,8 +23,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: ${{ fromJSON(github.event.inputs.spec).job_id }}
-        run: echo "job id ${{ fromJSON(github.event.inputs.spec).job_id }}"
+        run: echo "Job ID ${{ fromJSON(github.event.inputs.spec).job_id }}"
+
       - uses: diggerhq/digger@vLatest
         with:
           digger-spec: ${{ inputs.spec }}
@@ -81,5 +36,3 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
