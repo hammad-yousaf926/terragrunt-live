@@ -68,11 +68,12 @@ jobs:
           echo "Account Name: $ACCOUNT"
 
       - name: Configure AWS Credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets[format('AWS_ACCESS_KEY_{0}', env.ACCOUNT_NAME)] }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets[format('AWS_SECRET_KEY_{0}', env.ACCOUNT_NAME)] }}
-        run: |
-          echo "Configured AWS credentials for $ACCOUNT_NAME"
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_{0}', env.ACCOUNT_NAME)] }}
+          aws-secret-access-key: ${{ secrets[format('AWS_SECRET_KEY_{0}', env.ACCOUNT_NAME)] }}
+          aws-region: us-east-1 # Use your default region
+
 
       - name: Set up Terraform CLI
         uses: hashicorp/setup-terraform@v2
@@ -91,6 +92,12 @@ jobs:
       - name: Terragrunt Validate
         run: |
           terragrunt validate-all --terragrunt-working-dir=${{ matrix.dir }}
+
+      - name: Debug AWS Credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+          echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+
 
       - name: Terragrunt Plan
         run: |
