@@ -21,5 +21,7 @@ inputs = {
   tags = {
     Terraform   = "true"
     Environment = "production"
-  }    
+  } 
+     
 }
+
