@@ -5,36 +5,35 @@ on:
     branches:
       - main
       - master
-    types: [closed, opened, synchronize, reopened]
+    types: [ closed, opened, synchronize, reopened ]
   issue_comment:
     types: [created]
     if: contains(github.event.comment.body, 'digger')
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
 
-      - name: Setup AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Digger Run
+      - name: Digger run
         uses: diggerhq/digger@latest
         with:
           setup-aws: true
           setup-terragrunt: true
           terragrunt-version: 0.44.1
         env:
-          LOCK_PROVIDER: s3
-          AWS_BUCKET_NAME: my-terraform-state-locks # Replace with your S3 bucket
-          DYNAMODB_TABLE_NAME: terraform-lock-table # Replace with your DynamoDB table
+          LOCK_PROVIDER: aws
+          AWS_REGION: us-east-1
           GITHUB_CONTEXT: ${{ toJson(github) }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

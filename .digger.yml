@@ -11,7 +11,7 @@ workflows:
       steps:
         - init
         - plan
-        - run: echo "Terragrunt generation!"
+        - run: echo "Terragrunt plan completed!"
     apply:
       steps:
         - apply
