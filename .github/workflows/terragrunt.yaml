@@ -233,21 +233,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate-plan
     if: ${{ needs.detect-changes.outputs.dirs != '[]' }}
-    steps:
-      - name: Prepare Matrix
-        id: prepare-matrix
-        run: |
-          # Use outputs or fallback to env variable
-          DIRS='${{ needs.detect-changes.outputs.dirs }}'
-          if [[ "$DIRS" == "[]" || -z "$DIRS" ]]; then
-            DIRS=${{ env.dirs }} # Fallback to env.dirs
-          fi
-
-          echo "dirs=$DIRS" >> $GITHUB_ENV
-          echo "matrix=$(echo $DIRS | jq -c '{dir: .}')" >> $GITHUB_OUTPUT
-
     strategy:
-      matrix: ${{ fromJson(steps.prepare-matrix.outputs.matrix) }}
+      matrix:
+        dir: ${{ fromJson(needs.detect-changes.outputs.dirs || '[]') }} # Pre-computed matrix
 
     steps:
       - name: Debug Working Directory
@@ -275,6 +263,8 @@ jobs:
       - name: Terragrunt Apply
         run: |
           terragrunt apply --terragrunt-working-dir=${{ matrix.dir }} --terragrunt-non-interactive -auto-approve
+
+
 
 
 
