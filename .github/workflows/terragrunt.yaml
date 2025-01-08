@@ -274,11 +274,17 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' && needs.detect-changes.outputs.dirs != '[]' }}
     strategy:
       matrix:
-        dir: ${{ fromJson(needs.detect-changes.outputs.dirs || '[]') }}
+        dir: ${{ fromJson(needs.detect-changes.outputs.dirs || '[""]') }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Skip if Directory is Empty
+        if: ${{ matrix.dir == '' }}
+        run: |
+          echo "No directories to apply changes."
+          exit 0
 
       - name: Set up Terraform CLI
         uses: hashicorp/setup-terraform@v2
@@ -293,4 +299,3 @@ jobs:
       - name: Terragrunt Apply
         run: |
           terragrunt run-all apply --terragrunt-working-dir=${{ matrix.dir }} --terragrunt-non-interactive -auto-approve
-
