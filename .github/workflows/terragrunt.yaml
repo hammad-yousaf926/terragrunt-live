@@ -1,3 +1,175 @@
+# name: Terragrunt CI/CD Pipeline
+
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#   push:
+#     branches:
+#       - main
+#   workflow_dispatch: # Allows manual trigger for apply
+
+# jobs:
+#   detect-changes:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       dirs: ${{ steps.filter.outputs.dirs }}
+
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0 # Fetch full history
+
+#       - name: Fetch Full History
+#         run: |
+#           if [ -f .git/shallow ]; then
+#             git fetch --prune --unshallow --tags
+#           else
+#             git fetch --prune --tags
+#           fi
+
+#       - name: Detect Changed Directories
+#         id: filter
+#         run: |
+#           # Detect all tracked terragrunt.hcl files under accounts directory
+#           CHANGED_FILES=$(git ls-files | grep 'accounts/.*terragrunt.hcl' || echo "")
+#           if [[ -z "$CHANGED_FILES" ]]; then
+#             echo "No matching terragrunt.hcl changes detected."
+#             echo "dirs=[]" >> $GITHUB_ENV
+#             echo "dirs=[]" > $GITHUB_OUTPUT
+#             exit 0
+#           fi
+
+#           # Extract unique directories containing terragrunt.hcl files
+#           UNIQUE_DIRS=$(echo "$CHANGED_FILES" | xargs -n1 dirname | sort -u | jq -R -s -c 'split("\n")[:-1]')
+#           echo "Detected directories: $UNIQUE_DIRS"
+#           echo "dirs=$UNIQUE_DIRS" >> $GITHUB_ENV
+#           echo "dirs=$UNIQUE_DIRS" > $GITHUB_OUTPUT
+
+#   validate-plan:
+#     runs-on: ubuntu-latest
+#     needs: detect-changes
+#     if: ${{ needs.detect-changes.outputs.dirs != '[]' }}
+#     strategy:
+#       matrix:
+#         dir: ${{ fromJson(needs.detect-changes.outputs.dirs) }}
+
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Extract Account Name
+#         id: extract-account
+#         run: |
+#           # Convert account name to uppercase with underscores
+#           ACCOUNT=$(echo ${{ matrix.dir }} | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+#           echo "ACCOUNT_NAME=$ACCOUNT" >> $GITHUB_ENV
+#           echo "Account Name: $ACCOUNT"
+
+#       - name: Debug Account and Secrets
+#         run: |
+#           echo "Access Key Secret Name: AWS_ACCESS_KEY_${ACCOUNT_NAME}"
+#           echo "Secret Key Secret Name: AWS_SECRET_KEY_${ACCOUNT_NAME}"
+
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v3
+#         with:
+#           aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_{0}', env.ACCOUNT_NAME)] }}
+#           aws-secret-access-key: ${{ secrets[format('AWS_SECRET_KEY_{0}', env.ACCOUNT_NAME)] }}
+#           aws-region: us-east-1
+
+
+
+#       - name: Set up Terraform CLI
+#         uses: hashicorp/setup-terraform@v2
+#         with:
+#           terraform_version: 1.9.8
+
+#       - name: Install Terragrunt
+#         run: |
+#           sudo curl -L -o /usr/local/bin/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.45.0/terragrunt_linux_amd64
+#           sudo chmod +x /usr/local/bin/terragrunt
+
+#       - name: Terragrunt Format
+#         run: |
+#           terragrunt hclfmt --terragrunt-working-dir=${{ matrix.dir }}
+
+#       - name: Terragrunt Validate
+#         run: |
+#           terragrunt validate-all --terragrunt-working-dir=${{ matrix.dir }}
+
+#       - name: Debug AWS Credentials
+#         run: |
+#           echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+#           echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+
+
+#       - name: Terragrunt Plan
+#         run: |
+#           terragrunt run-all plan --terragrunt-working-dir=${{ matrix.dir }} --terragrunt-non-interactive
+
+#   # validate-plan:
+#   #   runs-on: ubuntu-latest
+#   #   needs: detect-changes
+#   #   if: ${{ needs.detect-changes.outputs.dirs != '[]' }}
+#   #   strategy:
+#   #     matrix:
+#   #       dir: ${{ fromJson(needs.detect-changes.outputs.dirs) }}
+
+#   #   steps:
+#   #     - name: Checkout Code
+#   #       uses: actions/checkout@v4
+
+#   #     - name: Set up Terraform CLI
+#   #       uses: hashicorp/setup-terraform@v2
+#   #       with:
+#   #         terraform_version: 1.9.8
+
+#   #     - name: Install Terragrunt
+#   #       run: |
+#   #         sudo curl -L -o /usr/local/bin/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.45.0/terragrunt_linux_amd64
+#   #         sudo chmod +x /usr/local/bin/terragrunt
+
+#   #     - name: Terragrunt Format
+#   #       run: |
+#   #         terragrunt hclfmt --terragrunt-working-dir=${{ matrix.dir }}
+
+#   #     - name: Terragrunt Validate
+#   #       run: |
+#   #         terragrunt validate-all --terragrunt-working-dir=${{ matrix.dir }}
+
+#   #     - name: Terragrunt Plan
+#   #       run: |
+#   #         terragrunt run-all plan --terragrunt-working-dir=${{ matrix.dir }} --terragrunt-non-interactive
+
+#   apply:
+#     runs-on: ubuntu-latest
+#     needs: validate-plan
+#     if: ${{ github.event_name == 'workflow_dispatch' && needs.detect-changes.outputs.dirs != '[]' }}
+#     strategy:
+#       matrix:
+#         dir: ${{ fromJson(needs.detect-changes.outputs.dirs) }}
+
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Terraform CLI
+#         uses: hashicorp/setup-terraform@v2
+#         with:
+#           terraform_version: 1.9.8
+
+#       - name: Install Terragrunt
+#         run: |
+#           sudo curl -L -o /usr/local/bin/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.45.0/terragrunt_linux_amd64
+#           sudo chmod +x /usr/local/bin/terragrunt
+
+#       - name: Terragrunt Apply
+#         run: |
+#           terragrunt run-all apply --terragrunt-working-dir=${{ matrix.dir }} --terragrunt-non-interactive -auto-approve
+
+
 name: Terragrunt CI/CD Pipeline
 
 on:
@@ -14,6 +186,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       dirs: ${{ steps.filter.outputs.dirs }}
+      accounts: ${{ steps.filter.outputs.accounts }}
 
     steps:
       - name: Checkout Code
@@ -38,6 +211,8 @@ jobs:
             echo "No matching terragrunt.hcl changes detected."
             echo "dirs=[]" >> $GITHUB_ENV
             echo "dirs=[]" > $GITHUB_OUTPUT
+            echo "accounts=[]" >> $GITHUB_ENV
+            echo "accounts=[]" > $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -46,6 +221,12 @@ jobs:
           echo "Detected directories: $UNIQUE_DIRS"
           echo "dirs=$UNIQUE_DIRS" >> $GITHUB_ENV
           echo "dirs=$UNIQUE_DIRS" > $GITHUB_OUTPUT
+
+          # Extract unique accounts from directory structure
+          ACCOUNTS=$(echo "$CHANGED_FILES" | cut -d'/' -f2 | sort -u | jq -R -s -c 'split("\n")[:-1]')
+          echo "Detected accounts: $ACCOUNTS"
+          echo "accounts=$ACCOUNTS" >> $GITHUB_ENV
+          echo "accounts=$ACCOUNTS" > $GITHUB_OUTPUT
 
   validate-plan:
     runs-on: ubuntu-latest
@@ -62,7 +243,7 @@ jobs:
       - name: Extract Account Name
         id: extract-account
         run: |
-          # Convert account name to uppercase with underscores
+          # Extract account name dynamically
           ACCOUNT=$(echo ${{ matrix.dir }} | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
           echo "ACCOUNT_NAME=$ACCOUNT" >> $GITHUB_ENV
           echo "Account Name: $ACCOUNT"
@@ -78,8 +259,6 @@ jobs:
           aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_{0}', env.ACCOUNT_NAME)] }}
           aws-secret-access-key: ${{ secrets[format('AWS_SECRET_KEY_{0}', env.ACCOUNT_NAME)] }}
           aws-region: us-east-1
-
-
 
       - name: Set up Terraform CLI
         uses: hashicorp/setup-terraform@v2
@@ -99,49 +278,9 @@ jobs:
         run: |
           terragrunt validate-all --terragrunt-working-dir=${{ matrix.dir }}
 
-      - name: Debug AWS Credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
-          echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
-
-
       - name: Terragrunt Plan
         run: |
           terragrunt run-all plan --terragrunt-working-dir=${{ matrix.dir }} --terragrunt-non-interactive
-
-  # validate-plan:
-  #   runs-on: ubuntu-latest
-  #   needs: detect-changes
-  #   if: ${{ needs.detect-changes.outputs.dirs != '[]' }}
-  #   strategy:
-  #     matrix:
-  #       dir: ${{ fromJson(needs.detect-changes.outputs.dirs) }}
-
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v4
-
-  #     - name: Set up Terraform CLI
-  #       uses: hashicorp/setup-terraform@v2
-  #       with:
-  #         terraform_version: 1.9.8
-
-  #     - name: Install Terragrunt
-  #       run: |
-  #         sudo curl -L -o /usr/local/bin/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.45.0/terragrunt_linux_amd64
-  #         sudo chmod +x /usr/local/bin/terragrunt
-
-  #     - name: Terragrunt Format
-  #       run: |
-  #         terragrunt hclfmt --terragrunt-working-dir=${{ matrix.dir }}
-
-  #     - name: Terragrunt Validate
-  #       run: |
-  #         terragrunt validate-all --terragrunt-working-dir=${{ matrix.dir }}
-
-  #     - name: Terragrunt Plan
-  #       run: |
-  #         terragrunt run-all plan --terragrunt-working-dir=${{ matrix.dir }} --terragrunt-non-interactive
 
   apply:
     runs-on: ubuntu-latest
@@ -168,5 +307,3 @@ jobs:
       - name: Terragrunt Apply
         run: |
           terragrunt run-all apply --terragrunt-working-dir=${{ matrix.dir }} --terragrunt-non-interactive -auto-approve
-
-
