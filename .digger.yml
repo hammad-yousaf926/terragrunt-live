@@ -1,0 +1,17 @@
+generate_projects:
+  terragrunt_parsing:
+    parallel: true
+    createProjectName: true
+    createWorkspace: true
+    defaultWorkflow: default
+
+workflows:
+  default:
+    plan:
+      steps:
+        - init
+        - plan
+        - run: echo "Terragrunt generation!"
+    apply:
+      steps:
+        - apply
