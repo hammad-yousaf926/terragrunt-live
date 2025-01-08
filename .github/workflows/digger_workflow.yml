@@ -23,7 +23,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Install Terragrunt
+        run: |
+          TERRAGRUNT_VERSION=0.44.1
+          wget https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64
+          chmod +x terragrunt_linux_amd64
+          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+        shell: bash
+
+      - name: Verify Terragrunt Installation
+        run: terragrunt --version
       - name: ${{ fromJSON(github.event.inputs.spec).job_id }}
         run: echo "Job ID ${{ fromJSON(github.event.inputs.spec).job_id }}"
 
