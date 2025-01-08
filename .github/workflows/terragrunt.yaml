@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual trigger for apply
 
 jobs:
   detect-changes:
@@ -22,10 +22,13 @@ jobs:
       - name: Detect Changed Directories
         id: filter
         run: |
-          # Find all modified directories containing terragrunt.hcl files
-          CHANGED_DIRS=$(git diff --name-only origin/main...HEAD | grep 'terragrunt.hcl' | xargs -n1 dirname | sort -u | jq -R -s -c 'split("\n")[:-1]')
-          echo "dirs=$CHANGED_DIRS"
+          # Find all modified directories containing terragrunt.hcl files inside accounts directory
+          CHANGED_DIRS=$(git diff --name-only origin/main...HEAD | grep 'terragrunt-live/accounts/.*terragrunt.hcl' | xargs -n1 dirname | sort -u | jq -R -s -c 'split("\n")[:-1]')
+          if [[ -z "$CHANGED_DIRS" ]]; then
+            CHANGED_DIRS='[]' # Default to empty JSON array
+          fi
           echo "dirs=$CHANGED_DIRS" >> $GITHUB_ENV
+          echo "::set-output name=dirs::$CHANGED_DIRS"
 
   validate-plan:
     runs-on: ubuntu-latest
