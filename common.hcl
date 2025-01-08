@@ -1,12 +1,3 @@
-locals {
-  # Define account IDs for each environment
-  account_id_map = {
-    "ndgov-prod"  = "160319277176"
-    "ndgov-stage" = "222222222222"
-  }
-}
-
-
 remote_state {
   backend = "s3"
   config = {
@@ -18,3 +9,7 @@ remote_state {
   }
 }
 
+generate = {
+  path      = "${path_relative_to_include()}"
+  file_name = "terragrunt.hcl"
+}
