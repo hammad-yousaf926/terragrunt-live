@@ -12,9 +12,10 @@ workflows:
         - init
         - plan
         - run: echo "Terragrunt plan completed!"
-    apply:
-      steps:
         - apply
+    # apply:
+    #   steps:
+    #     - apply
 projects:
 - name: prod
   dir: accounts/ndgov-prod/us-east-1/s3
