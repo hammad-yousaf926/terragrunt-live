@@ -219,6 +219,7 @@ jobs:
         run: |
           DIRS=$(cat changed-dirs.json)
           echo "DIRS=$DIRS" >> $GITHUB_ENV
+
       - name: Set up Terraform CLI
         uses: hashicorp/setup-terraform@v2
         with:
@@ -228,10 +229,8 @@ jobs:
         run: |
           sudo curl -L -o /usr/local/bin/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.45.0/terragrunt_linux_amd64
           sudo chmod +x /usr/local/bin/terragrunt
+
       - name: Process Each Directory
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_NDGOV_PROD }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY_NDGOV_PROD }}
         run: |
           for DIR in $(echo $DIRS | jq -r '.[]'); do
             echo "Processing directory: $DIR"
@@ -240,9 +239,9 @@ jobs:
             ACCOUNT=$(echo $DIR | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
             echo "Using account: $ACCOUNT"
 
-            # Configure AWS credentials dynamically
-            aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-            aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+            # Configure AWS credentials dynamically using account name
+            aws configure set aws_access_key_id "${{ secrets[format('AWS_ACCESS_KEY_{0}', ACCOUNT)] }}"
+            aws configure set aws_secret_access_key "${{ secrets[format('AWS_SECRET_KEY_{0}', ACCOUNT)] }}"
 
             # Run terragrunt plan
             terragrunt run-all plan --terragrunt-working-dir=$DIR --terragrunt-non-interactive
@@ -266,6 +265,7 @@ jobs:
         run: |
           DIRS=$(cat changed-dirs.json)
           echo "DIRS=$DIRS" >> $GITHUB_ENV
+
       - name: Set up Terraform CLI
         uses: hashicorp/setup-terraform@v2
         with:
@@ -275,10 +275,8 @@ jobs:
         run: |
           sudo curl -L -o /usr/local/bin/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.45.0/terragrunt_linux_amd64
           sudo chmod +x /usr/local/bin/terragrunt
+
       - name: Process Each Directory
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_NDGOV_PROD }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY_NDGOV_PROD }}
         run: |
           for DIR in $(echo $DIRS | jq -r '.[]'); do
             echo "Processing directory: $DIR"
@@ -287,10 +285,11 @@ jobs:
             ACCOUNT=$(echo $DIR | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
             echo "Using account: $ACCOUNT"
 
-            # Configure AWS credentials dynamically
-            aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-            aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+            # Configure AWS credentials dynamically using account name
+            aws configure set aws_access_key_id "${{ secrets[format('AWS_ACCESS_KEY_{0}', ACCOUNT)] }}"
+            aws configure set aws_secret_access_key "${{ secrets[format('AWS_SECRET_KEY_{0}', ACCOUNT)] }}"
 
             # Run terragrunt apply
             terragrunt apply --terragrunt-working-dir=$DIR --terragrunt-non-interactive -auto-approve
           done
+

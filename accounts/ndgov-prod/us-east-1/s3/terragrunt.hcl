@@ -15,7 +15,7 @@ include "account" {
 # }
 
 inputs = {
-  bucket_name     = "my-unique-buckedfssdfertgdfft-namedfgdfg"
+  bucket_name     = "my-unique-buckedfssdfertgdfftfdd-namedfgdfg"
   acl             = "private"
   versioning      = true
   tags = {
