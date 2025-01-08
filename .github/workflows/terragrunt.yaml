@@ -75,13 +75,14 @@ jobs:
           for DIR in $(echo $DIRS | jq -r '.[]'); do
             echo "Processing directory: $DIR"
 
-            # Extract account name dynamically
+            # Extract account name and export as environment variable
             ACCOUNT=$(echo $DIR | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+            echo "ACCOUNT_NAME=$ACCOUNT" >> $GITHUB_ENV
             echo "Using account: $ACCOUNT"
 
             # Configure AWS credentials dynamically
-            aws configure set aws_access_key_id ${{ secrets[format('AWS_ACCESS_KEY_{0}', ACCOUNT)] }}
-            aws configure set aws_secret_access_key ${{ secrets[format('AWS_SECRET_KEY_{0}', ACCOUNT)] }}
+            aws configure set aws_access_key_id ${{ secrets[format('AWS_ACCESS_KEY_{0}', env.ACCOUNT_NAME)] }}
+            aws configure set aws_secret_access_key ${{ secrets[format('AWS_SECRET_KEY_{0}', env.ACCOUNT_NAME)] }}
 
             # Run terragrunt plan
             terragrunt run-all plan --terragrunt-working-dir=$DIR --terragrunt-non-interactive
@@ -111,14 +112,16 @@ jobs:
           for DIR in $(echo $DIRS | jq -r '.[]'); do
             echo "Processing directory: $DIR"
 
-            # Extract account name dynamically
+            # Extract account name and export as environment variable
             ACCOUNT=$(echo $DIR | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+            echo "ACCOUNT_NAME=$ACCOUNT" >> $GITHUB_ENV
             echo "Using account: $ACCOUNT"
 
             # Configure AWS credentials dynamically
-            aws configure set aws_access_key_id ${{ secrets[format('AWS_ACCESS_KEY_{0}', ACCOUNT)] }}
-            aws configure set aws_secret_access_key ${{ secrets[format('AWS_SECRET_KEY_{0}', ACCOUNT)] }}
+            aws configure set aws_access_key_id ${{ secrets[format('AWS_ACCESS_KEY_{0}', env.ACCOUNT_NAME)] }}
+            aws configure set aws_secret_access_key ${{ secrets[format('AWS_SECRET_KEY_{0}', env.ACCOUNT_NAME)] }}
 
             # Run terragrunt apply
             terragrunt apply --terragrunt-working-dir=$DIR --terragrunt-non-interactive -auto-approve
           done
+
