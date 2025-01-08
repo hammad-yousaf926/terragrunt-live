@@ -275,12 +275,12 @@ jobs:
     if: ${{ needs.detect-changes.outputs.dirs != '[]' }}
     strategy:
       matrix:
-        dir: ${{ fromJson(needs.detect-changes.outputs.dirs || '[""]') }}
+        dir: ${{ fromJson(needs.detect-changes.outputs.dirs || '[]') }} # SAME AS VALIDATE-PLAN!
 
     steps:
       - name: Debug Working Directory
         run: |
-          echo "Working Directory: ${{ matrix.dir }}"
+          echo "Matrix Dir: ${{ matrix.dir }}"
           ls -l ${{ matrix.dir }} || echo "Directory does not exist!"
 
       - name: Verify Directory Exists

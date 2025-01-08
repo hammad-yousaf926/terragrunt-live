@@ -21,7 +21,7 @@ inputs = {
   tags = {
     Terraform   = "true"
     Environment = "production"
-    team = "devops"
+    team = "devopss"
   } 
 
 }
