@@ -35,6 +35,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GITHUB_CONTEXT: ${{ toJson(github) }} # Fix for missing context
+          BEARER_TOKEN: "Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}"
+          ENABLE_POLICY_CHECKS: "false"
           LOCK_PROVIDER: aws
           AWS_REGION: us-east-1
 
