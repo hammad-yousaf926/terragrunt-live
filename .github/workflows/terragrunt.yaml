@@ -62,25 +62,23 @@ jobs:
       - name: Extract Account Name
         id: extract-account
         run: |
-          # Extract account name dynamically from the directory structure
-          ACCOUNT=$(echo ${{ matrix.dir }} | cut -d'/' -f2)
+          # Convert account name to uppercase with underscores
+          ACCOUNT=$(echo ${{ matrix.dir }} | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
           echo "ACCOUNT_NAME=$ACCOUNT" >> $GITHUB_ENV
           echo "Account Name: $ACCOUNT"
-          
+
       - name: Debug Account and Secrets
         run: |
-          echo "Account Name: $ACCOUNT_NAME"
           echo "Access Key Secret Name: AWS_ACCESS_KEY_${ACCOUNT_NAME}"
           echo "Secret Key Secret Name: AWS_SECRET_KEY_${ACCOUNT_NAME}"
-          echo "AWS_ACCESS_KEY_ID=${{ secrets[format('AWS_ACCESS_KEY_{0}', env.ACCOUNT_NAME)] }}"
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets[format('AWS_SECRET_KEY_{0}', env.ACCOUNT_NAME)] }}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_{0}', env.ACCOUNT_NAME)] }}
           aws-secret-access-key: ${{ secrets[format('AWS_SECRET_KEY_{0}', env.ACCOUNT_NAME)] }}
-          aws-region: us-east-1 # Use your default region
+          aws-region: us-east-1
+
 
 
       - name: Set up Terraform CLI
