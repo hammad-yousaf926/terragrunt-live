@@ -295,6 +295,10 @@ jobs:
         run: |
           sudo curl -L -o /usr/local/bin/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.45.0/terragrunt_linux_amd64
           sudo chmod +x /usr/local/bin/terragrunt
+      - name: Debug Working Directory
+        run: |
+          echo "Working Directory: ${{ matrix.dir }}"
+          ls -l ${{ matrix.dir }} || echo "Directory does not exist!"
 
       - name: Terragrunt Apply
         run: |
