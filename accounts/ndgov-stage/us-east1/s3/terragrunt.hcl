@@ -1,3 +1,11 @@
+terraform {
+  source = "git::https://github.com/hammad-yousaf926/terraform-modules.git//modules/s3/?ref=main"
+}
+
+include "region" {
+  path = "${find_in_parent_folders("region.hcl")}"
+}
+
 include "account" {
   path = "${find_in_parent_folders("account.hcl")}"
 }
@@ -7,13 +15,13 @@ include "account" {
 # }
 
 inputs = {
-  bucket_name     = "my-unique-buckett-hammad"
+  bucket_name     = "my-unique--iii-bucsdsdke-gdfg"
   acl             = "private"
   versioning      = true
   tags = {
     Terraform   = "true"
     Environment = "production"
-    team = "stage"
+    team = "devopss"
   } 
 
 }
