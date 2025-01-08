@@ -32,29 +32,21 @@ jobs:
       - name: Detect Changed Directories
         id: filter
         run: |
-          # Capture changed files and filter for terragrunt.hcl files under accounts directory
-          CHANGED_FILES=$(git diff --name-only origin/main...HEAD || echo "")
+          # Detect all tracked terragrunt.hcl files under accounts directory
+          CHANGED_FILES=$(git ls-files | grep 'accounts/.*terragrunt.hcl' || echo "")
           if [[ -z "$CHANGED_FILES" ]]; then
-            echo "No changes detected."
-            echo "dirs=[]" >> $GITHUB_ENV
-            echo "dirs=[]" > $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          # Filter paths containing terragrunt.hcl and extract directories
-          CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep 'terragrunt-live/accounts/.*terragrunt.hcl' || echo "")
-          if [[ -z "$CHANGED_DIRS" ]]; then
             echo "No matching terragrunt.hcl changes detected."
             echo "dirs=[]" >> $GITHUB_ENV
             echo "dirs=[]" > $GITHUB_OUTPUT
             exit 0
           fi
 
-          # Process directories and format as JSON array
-          UNIQUE_DIRS=$(echo "$CHANGED_DIRS" | xargs -n1 dirname | sort -u | jq -R -s -c 'split("\n")[:-1]')
+          # Extract unique directories containing terragrunt.hcl files
+          UNIQUE_DIRS=$(echo "$CHANGED_FILES" | xargs -n1 dirname | sort -u | jq -R -s -c 'split("\n")[:-1]')
           echo "Detected directories: $UNIQUE_DIRS"
           echo "dirs=$UNIQUE_DIRS" >> $GITHUB_ENV
           echo "dirs=$UNIQUE_DIRS" > $GITHUB_OUTPUT
+
 
 
   validate-plan:
