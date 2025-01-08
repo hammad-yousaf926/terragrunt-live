@@ -22,5 +22,4 @@ inputs = {
     Terraform   = "true"
     Environment = "production"
   }    
-  
 }
