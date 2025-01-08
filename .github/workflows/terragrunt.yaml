@@ -235,18 +235,22 @@ jobs:
           for DIR in $(echo $DIRS | jq -r '.[]'); do
             echo "Processing directory: $DIR"
 
-            # Extract account name dynamically
+            # Extract account name dynamically and set environment variable
             ACCOUNT=$(echo $DIR | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
-            echo "Using account: $ACCOUNT"
+            echo "ACCOUNT_NAME=$ACCOUNT" >> $GITHUB_ENV
+          done
 
-            # Configure AWS credentials dynamically using aws-actions
-            aws-actions/configure-aws-credentials@v3:
-              with:
-                aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_{0}', ACCOUNT)] }}
-                aws-secret-access-key: ${{ secrets[format('AWS_SECRET_KEY_{0}', ACCOUNT)] }}
-                aws-region: us-east-1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_{0}', env.ACCOUNT_NAME)] }}
+          aws-secret-access-key: ${{ secrets[format('AWS_SECRET_KEY_{0}', env.ACCOUNT_NAME)] }}
+          aws-region: us-east-1
 
-            # Run terragrunt plan
+      - name: Run Terragrunt Plan
+        run: |
+          for DIR in $(echo $DIRS | jq -r '.[]'); do
+            echo "Running plan in: $DIR"
             terragrunt run-all plan --terragrunt-working-dir=$DIR --terragrunt-non-interactive
           done
 
@@ -284,20 +288,25 @@ jobs:
           for DIR in $(echo $DIRS | jq -r '.[]'); do
             echo "Processing directory: $DIR"
 
-            # Extract account name dynamically
+            # Extract account name dynamically and set environment variable
             ACCOUNT=$(echo $DIR | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
-            echo "Using account: $ACCOUNT"
+            echo "ACCOUNT_NAME=$ACCOUNT" >> $GITHUB_ENV
+          done
 
-            # Configure AWS credentials dynamically using aws-actions
-            aws-actions/configure-aws-credentials@v3:
-              with:
-                aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_{0}', ACCOUNT)] }}
-                aws-secret-access-key: ${{ secrets[format('AWS_SECRET_KEY_{0}', ACCOUNT)] }}
-                aws-region: us-east-1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_{0}', env.ACCOUNT_NAME)] }}
+          aws-secret-access-key: ${{ secrets[format('AWS_SECRET_KEY_{0}', env.ACCOUNT_NAME)] }}
+          aws-region: us-east-1
 
-            # Run terragrunt apply
+      - name: Run Terragrunt Apply
+        run: |
+          for DIR in $(echo $DIRS | jq -r '.[]'); do
+            echo "Applying changes in: $DIR"
             terragrunt apply --terragrunt-working-dir=$DIR --terragrunt-non-interactive -auto-approve
           done
+
 
 
 
