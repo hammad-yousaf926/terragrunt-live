@@ -33,8 +33,7 @@ jobs:
           setup-terragrunt: true
           terragrunt-version: 0.44.1
         env:
-          AUTH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
           ENABLE_POLICY_CHECKS: "false"
           SKIP_POLICY_CHECK: "true"

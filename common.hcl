@@ -13,3 +13,13 @@ generate = {
   path      = "${path_relative_to_include()}"
   file_name = "terragrunt.hcl"
 }
+
+terraform {
+  extra_arguments "plan" {
+    commands = ["plan"]
+
+    arguments = [
+      "-out=${get_terragrunt_dir()}/terraform.tfplan"
+    ]
+  }
+}
