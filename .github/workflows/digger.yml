@@ -33,7 +33,7 @@ jobs:
           setup-terragrunt: true
           terragrunt-version: 0.44.1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GITHUB_CONTEXT: ${{ toJson(github) }} # Fix for missing context
           LOCK_PROVIDER: aws
           AWS_REGION: us-east-1
