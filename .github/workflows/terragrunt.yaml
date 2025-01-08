@@ -238,14 +238,13 @@ jobs:
             # Extract account name dynamically
             ACCOUNT=$(echo $DIR | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
             echo "Using account: $ACCOUNT"
-            
-            # Set environment variables for credentials dynamically
-            echo "AWS_ACCESS_KEY_ID=${{ secrets[format('AWS_ACCESS_KEY_%s', ACCOUNT)] }}" >> $GITHUB_ENV
-            echo "AWS_SECRET_ACCESS_KEY=${{ secrets[format('AWS_SECRET_KEY_%s', ACCOUNT)] }}" >> $GITHUB_ENV
 
-            # Configure AWS credentials dynamically
-            aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-            aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+            # Configure AWS credentials dynamically using aws-actions
+            aws-actions/configure-aws-credentials@v3:
+              with:
+                aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_{0}', ACCOUNT)] }}
+                aws-secret-access-key: ${{ secrets[format('AWS_SECRET_KEY_{0}', ACCOUNT)] }}
+                aws-region: us-east-1
 
             # Run terragrunt plan
             terragrunt run-all plan --terragrunt-working-dir=$DIR --terragrunt-non-interactive
@@ -289,16 +288,16 @@ jobs:
             ACCOUNT=$(echo $DIR | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
             echo "Using account: $ACCOUNT"
 
-            # Set environment variables for credentials dynamically
-            echo "AWS_ACCESS_KEY_ID=${{ secrets[format('AWS_ACCESS_KEY_%s', ACCOUNT)] }}" >> $GITHUB_ENV
-            echo "AWS_SECRET_ACCESS_KEY=${{ secrets[format('AWS_SECRET_KEY_%s', ACCOUNT)] }}" >> $GITHUB_ENV
-
-            # Configure AWS credentials dynamically
-            aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-            aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+            # Configure AWS credentials dynamically using aws-actions
+            aws-actions/configure-aws-credentials@v3:
+              with:
+                aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_{0}', ACCOUNT)] }}
+                aws-secret-access-key: ${{ secrets[format('AWS_SECRET_KEY_{0}', ACCOUNT)] }}
+                aws-region: us-east-1
 
             # Run terragrunt apply
             terragrunt apply --terragrunt-working-dir=$DIR --terragrunt-non-interactive -auto-approve
           done
+
 
 
