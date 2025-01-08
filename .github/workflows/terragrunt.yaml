@@ -239,13 +239,13 @@ jobs:
             ACCOUNT=$(echo $DIR | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
             echo "Using account: $ACCOUNT"
 
-            # Configure AWS credentials dynamically for each directory
+            # Configure AWS credentials dynamically
             aws_access_key="${{ secrets[format('AWS_ACCESS_KEY_{0}', ACCOUNT)] }}"
             aws_secret_key="${{ secrets[format('AWS_SECRET_KEY_{0}', ACCOUNT)] }}"
 
-            echo "Configuring AWS credentials for account: $ACCOUNT"
-            aws configure set aws_access_key_id "$aws_access_key"
-            aws configure set aws_secret_access_key "$aws_secret_key"
+            # Export AWS credentials as environment variables
+            export AWS_ACCESS_KEY_ID="$aws_access_key"
+            export AWS_SECRET_ACCESS_KEY="$aws_secret_key"
 
             # Run terragrunt plan
             terragrunt run-all plan --terragrunt-working-dir=$DIR --terragrunt-non-interactive
@@ -289,17 +289,18 @@ jobs:
             ACCOUNT=$(echo $DIR | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]' | tr '-' '_')
             echo "Using account: $ACCOUNT"
 
-            # Configure AWS credentials dynamically for each directory
+            # Configure AWS credentials dynamically
             aws_access_key="${{ secrets[format('AWS_ACCESS_KEY_{0}', ACCOUNT)] }}"
             aws_secret_key="${{ secrets[format('AWS_SECRET_KEY_{0}', ACCOUNT)] }}"
 
-            echo "Configuring AWS credentials for account: $ACCOUNT"
-            aws configure set aws_access_key_id "$aws_access_key"
-            aws configure set aws_secret_access_key "$aws_secret_key"
+            # Export AWS credentials as environment variables
+            export AWS_ACCESS_KEY_ID="$aws_access_key"
+            export AWS_SECRET_ACCESS_KEY="$aws_secret_key"
 
             # Run terragrunt apply
             terragrunt apply --terragrunt-working-dir=$DIR --terragrunt-non-interactive -auto-approve
           done
+
 
 
 
