@@ -10,10 +10,15 @@ remote_state {
 }
 
 locals {
+  # Extracting parts of the path for dynamic tags
+  parsed_path = split("/", path_relative_to_include())
+
   universal_tags = {
     Owner       = "DevOpsTeam"
     ManagedBy   = "Terragrunt"
-    Project     = path_relative_to_include()
+    Account     = local.parsed_path[1]               # Extract account name (e.g., ndgov-prod)
+    Region      = replace(local.parsed_path[2], "1", "-1") # Fix region format (e.g., us-east-1)
+    Project     = join("/", local.parsed_path)       # Full project path
   }
 }
 
@@ -23,10 +28,11 @@ terraform {
 
     arguments = [
       "-var",
-      "tags=${jsonencode(local.universal_tags)}" # Use only universal_tags here
+      "tags=${jsonencode(local.universal_tags)}"
     ]
   }
 }
+
 
 
 
