@@ -12,8 +12,8 @@ remote_state {
 locals {
   # Extract account name and region from the directory structure
   directory_parts = split("/", path_relative_to_include())
-  account_name    = local.directory_parts[1] # Extracts "ndgov-prod" from "accounts/ndgov-prod/us-east-1/s3"
-  region          = local.directory_parts[2] # Extracts "us-east-1" from "accounts/ndgov-prod/us-east-1/s3"
+  account_name    = local.directory_parts[0] # Extracts "ndgov-prod" from "accounts/ndgov-prod/us-east-1/s3"
+  region          = local.directory_parts[1] # Extracts "us-east-1" from "accounts/ndgov-prod/us-east-1/s3"
 
   # Define universal tags
   universal_tags = {
