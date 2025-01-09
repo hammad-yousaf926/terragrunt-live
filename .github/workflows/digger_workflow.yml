@@ -34,8 +34,14 @@ jobs:
           sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
         shell: bash
 
+      - name: Set AWS Credentials Dynamically
+        run: |
+          ACCOUNT_NAME=$(echo "${{ inputs.spec }}" | jq -r '.job_id' | cut -d'/' -f2)
+          echo "Detected account: $ACCOUNT_NAME"
+
       - name: Verify Terragrunt Installation
         run: terragrunt --version
+        
       - name: ${{ fromJSON(github.event.inputs.spec).job_id }}
         run: echo "Job ID ${{ fromJSON(github.event.inputs.spec).job_id }}"
 
