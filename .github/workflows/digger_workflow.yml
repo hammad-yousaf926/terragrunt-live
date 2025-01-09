@@ -36,8 +36,9 @@ jobs:
 
       - name: Set AWS Credentials Dynamically
         run: |
-          ACCOUNT_NAME=$(echo "${{ inputs.spec }}" | jq -r '.job_id' | cut -d'/' -f2)
-          echo "Detected account: $ACCOUNT_NAME"
+          # Extract PROJECT_DIR and parse the account name
+          PROJECT_DIR=$(echo '${{ inputs.spec }}' | jq -r '.job.runEnvVars.PROJECT_DIR')
+          ACCOUNT_NAME=$(echo "$PROJECT_DIR" | cut -d'/' -f2)
         shell: bash
 
       - name: Verify Terragrunt Installation
