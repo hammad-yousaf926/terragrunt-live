@@ -66,6 +66,14 @@ jobs:
           echo "AWS credentials set for account: $ACCOUNT_NAME"
         shell: bash
 
+      - name: Debug AWS Credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+          echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
+        env:
+          AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+
       - name: Verify Terragrunt Installation
         run: terragrunt --version
 
