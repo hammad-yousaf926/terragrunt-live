@@ -17,14 +17,15 @@ locals {
   }
 }
 
-generate "universal_tags" {
-  path      = "tags.auto.tfvars"
-  if_exists = "overwrite"
-  contents  = <<EOF
-tags = {
-  Owner       = "DevOpsTeam"
-  ManagedBy   = "Terragrunt"
+terraform {
+  extra_arguments "universal_tags" {
+    commands = ["plan", "apply"]
+
+    arguments = [
+      "-var",
+      "tags=${jsonencode(merge(var.tags, local.universal_tags))}"
+    ]
+  }
 }
-EOF
-}
+
 
