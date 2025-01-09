@@ -65,7 +65,9 @@ jobs:
             echo "AWS credentials could not be found for account: $ACCOUNT_NAME"
             exit 1
           fi
-
+          # Persist credentials for later steps
+          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
           echo "AWS credentials set for account: $ACCOUNT_NAME"
         shell: bash
 
