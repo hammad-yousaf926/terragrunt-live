@@ -35,11 +35,13 @@ jobs:
         shell: bash
 
       - name: Set AWS Credentials Dynamically
-        env:
-          AWS_ACCESS_KEY_NDGOV_PROD: ${{ secrets.AWS_ACCESS_KEY_NDGOV_PROD }}
-          AWS_SECRET_KEY_NDGOV_PROD: ${{ secrets.AWS_SECRET_KEY_NDGOV_PROD }}
-          AWS_ACCESS_KEY_NDGOV_STAGE: ${{ secrets.AWS_ACCESS_KEY_NDGOV_STAGE }}
-          AWS_SECRET_KEY_NDGOV_STAGE: ${{ secrets.AWS_SECRET_KEY_NDGOV_STAGE }}
+        # env:
+        #   AWS_ACCESS_KEY_NDGOV_PROD: ${{ secrets.AWS_ACCESS_KEY_NDGOV_PROD }}
+        #   AWS_SECRET_KEY_NDGOV_PROD: ${{ secrets.AWS_SECRET_KEY_NDGOV_PROD }}
+        #   AWS_ACCESS_KEY_NDGOV_STAGE: ${{ secrets.AWS_ACCESS_KEY_NDGOV_STAGE }}
+        #   AWS_SECRET_KEY_NDGOV_STAGE: ${{ secrets.AWS_SECRET_KEY_NDGOV_STAGE }}
+        env:  # Pass all secrets dynamically
+          $(for secret in ${{ toJSON(secrets) }}; do echo "$secret"; done)
         run: |
           # Extract PROJECT_DIR and parse the account name
           PROJECT_DIR=$(echo '${{ inputs.spec }}' | jq -r '.job.runEnvVars.PROJECT_DIR')
@@ -57,9 +59,6 @@ jobs:
           export AWS_ACCESS_KEY_ID=${!ACCESS_KEY_VAR}
           export AWS_SECRET_ACCESS_KEY=${!SECRET_KEY_VAR}
 
-          echo "AWS_ACCESS_KEY_ID: ***"  # Masked for security
-          echo "AWS_SECRET_ACCESS_KEY: ***"  # Masked for security
-
           # Validate the credentials
           if [[ -z "$AWS_ACCESS_KEY_ID" || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
             echo "AWS credentials could not be found for account: $ACCOUNT_NAME"
@@ -71,12 +70,6 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
 
           echo "AWS credentials set for account: $ACCOUNT_NAME"
-        shell: bash
-
-      - name: Debug AWS Credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
-          echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
         shell: bash
 
       - name: Verify Terragrunt Installation
