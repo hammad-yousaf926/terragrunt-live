@@ -15,6 +15,9 @@ workflows:
     apply:
       steps:
         - apply
+    destroy:
+      steps:
+        - destroy
 projects:
 - name: prod
   dir: accounts/ndgov-prod/us-east-1/s3
