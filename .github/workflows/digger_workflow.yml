@@ -89,8 +89,8 @@ jobs:
         with:
           digger-spec: ${{ inputs.spec }}
           setup-aws: true
-          aws-access-key-id: $AWS_ACCESS_KEY_ID # Dynamically set
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY # Dynamically set
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           setup-terragrunt: true # Force Terragrunt mode
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
