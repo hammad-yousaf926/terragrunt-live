@@ -10,9 +10,9 @@ include "account" {
   path = "${find_in_parent_folders("account.hcl")}"
 }
 
-# include "root" {
-#   path = find_in_parent_folders("common.hcl")
-# }
+include "root" {
+  path = find_in_parent_folders("common.hcl")
+}
 
 inputs = {
   bucket_name     = "my-unique--iii-bucsdsdke-gdfg"
