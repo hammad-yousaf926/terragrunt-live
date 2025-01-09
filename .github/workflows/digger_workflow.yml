@@ -1,0 +1,89 @@
+name: Digger Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      spec:
+        required: true
+      run_name:
+        required: false
+
+run-name: '${{inputs.run_name}}'
+
+jobs:
+  digger-job:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write      # required to merge PRs
+      actions: write       # required for plan persistence
+      id-token: write      # required for workload-identity-federation
+      pull-requests: write # required to post PR comments
+      issues: read         # required to check if PR number is an issue or not
+      statuses: write      # required to validate combined PR status
+
+    steps:
+      # - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Terragrunt
+        run: |
+          TERRAGRUNT_VERSION=0.44.1
+          wget https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64
+          chmod +x terragrunt_linux_amd64
+          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+        shell: bash
+
+      - name: Set AWS Credentials Dynamically
+        env:
+          AWS_ACCESS_KEY_NDGOV_PROD: ${{ secrets.AWS_ACCESS_KEY_NDGOV_PROD }}
+          AWS_SECRET_KEY_NDGOV_PROD: ${{ secrets.AWS_SECRET_KEY_NDGOV_PROD }}
+          AWS_ACCESS_KEY_NDGOV_STAGE: ${{ secrets.AWS_ACCESS_KEY_NDGOV_STAGE }}
+          AWS_SECRET_KEY_NDGOV_STAGE: ${{ secrets.AWS_SECRET_KEY_NDGOV_STAGE }}
+        run: |
+          # Extract PROJECT_DIR and parse the account name
+          PROJECT_DIR=$(echo '${{ inputs.spec }}' | jq -r '.job.runEnvVars.PROJECT_DIR')
+          echo "Extracted PROJECT_DIR: $PROJECT_DIR"
+
+          ACCOUNT_NAME=$(echo "$PROJECT_DIR" | cut -d'/' -f2)
+          echo "Extracted ACCOUNT_NAME: $ACCOUNT_NAME"
+          ENV_ACCOUNT_NAME=$(echo "$ACCOUNT_NAME" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+          echo "Converted account name for environment variables: $ENV_ACCOUNT_NAME"
+
+          ACCESS_KEY_VAR="AWS_ACCESS_KEY_${ENV_ACCOUNT_NAME}"
+          SECRET_KEY_VAR="AWS_SECRET_KEY_${ENV_ACCOUNT_NAME}"
+
+          # Export dynamically constructed environment variables
+          export AWS_ACCESS_KEY_ID=${!ACCESS_KEY_VAR}
+          export AWS_SECRET_ACCESS_KEY=${!SECRET_KEY_VAR}
+
+          # Validate the credentials
+          if [[ -z "$AWS_ACCESS_KEY_ID" || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
+            echo "AWS credentials could not be found for account: $ACCOUNT_NAME"
+            exit 1
+          fi
+
+          # Persist credentials for later steps
+          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
+
+          echo "AWS credentials set for account: $ACCOUNT_NAME"
+        shell: bash
+
+      - name: Verify Terragrunt Installation
+        run: terragrunt --version
+
+      - name: ${{ fromJSON(github.event.inputs.spec).job_id }}
+        run: echo "Job ID ${{ fromJSON(github.event.inputs.spec).job_id }}"
+
+      - uses: diggerhq/digger@vLatest
+        with:
+          digger-spec: ${{ inputs.spec }}
+          setup-aws: true
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          setup-terragrunt: true # Force Terragrunt mode
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMAND: ${{ inputs.command }}

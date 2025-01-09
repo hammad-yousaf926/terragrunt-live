@@ -15,7 +15,7 @@ include "root" {
 }
 
 inputs = {
-  bucket_name     = "my-unique--iii-bucsdsdke-gdfg"
+  bucket_name     = "my-uniquesecond-slashnextsnx"
   acl             = "private"
   versioning      = true
   tags = {
@@ -25,3 +25,4 @@ inputs = {
   } 
 
 }
+

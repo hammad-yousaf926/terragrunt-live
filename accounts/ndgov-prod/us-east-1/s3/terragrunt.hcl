@@ -10,16 +10,19 @@ include "account" {
   path = "${find_in_parent_folders("account.hcl")}"
 }
 
-# include "tags" {
-#   path = "${find_in_parent_folders("tags.hcl")}"
-# }
+include "root" {
+  path = find_in_parent_folders("common.hcl")
+}
 
 inputs = {
-  bucket_name     = "my-unique-buckedfssdfertgdfft-namedfgdfg"
+  bucket_name     = "my-unique-buckedfssdfertgdfftfdd-namedfgdfg"
   acl             = "private"
   versioning      = true
   tags = {
     Terraform   = "true"
     Environment = "production"
-  }    
+    team = "devopss"
+  } 
+
 }
+
