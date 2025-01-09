@@ -44,6 +44,21 @@ jobs:
           echo "Extracted ACCOUNT_NAME: $ACCOUNT_NAME"
           ENV_ACCOUNT_NAME=$(echo "$ACCOUNT_NAME" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
           echo "Converted account name for environment variables: $ENV_ACCOUNT_NAME"
+
+          ACCESS_KEY_VAR="AWS_ACCESS_KEY_${ENV_ACCOUNT_NAME}"
+          SECRET_KEY_VAR="AWS_SECRET_KEY_${ENV_ACCOUNT_NAME}"
+
+          # Export dynamically constructed environment variables
+          export AWS_ACCESS_KEY_ID=${!ACCESS_KEY_VAR}
+          export AWS_SECRET_ACCESS_KEY=${!SECRET_KEY_VAR}
+
+          # Validate the credentials
+          if [[ -z "$AWS_ACCESS_KEY_ID" || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
+            echo "AWS credentials could not be found for account: $ACCOUNT_NAME"
+            exit 1
+          fi
+
+          echo "AWS credentials set for account: $ACCOUNT_NAME"
         shell: bash
 
       - name: Verify Terragrunt Installation
@@ -56,8 +71,8 @@ jobs:
         with:
           digger-spec: ${{ inputs.spec }}
           setup-aws: true
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: $AWS_ACCESS_KEY_ID # Dynamically set
+          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY # Dynamically set
           setup-terragrunt: true # Force Terragrunt mode
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
