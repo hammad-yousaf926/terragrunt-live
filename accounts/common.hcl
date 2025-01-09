@@ -23,9 +23,10 @@ terraform {
 
     arguments = [
       "-var",
-      "tags=${jsonencode(merge(var.tags, local.universal_tags))}"
+      "tags=${jsonencode(merge(inputs.tags, local.universal_tags))}" # Use inputs.tags
     ]
   }
 }
+
 
 
