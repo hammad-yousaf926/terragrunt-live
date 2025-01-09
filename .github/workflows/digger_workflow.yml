@@ -35,13 +35,11 @@ jobs:
         shell: bash
 
       - name: Set AWS Credentials Dynamically
-        # env:
-        #   AWS_ACCESS_KEY_NDGOV_PROD: ${{ secrets.AWS_ACCESS_KEY_NDGOV_PROD }}
-        #   AWS_SECRET_KEY_NDGOV_PROD: ${{ secrets.AWS_SECRET_KEY_NDGOV_PROD }}
-        #   AWS_ACCESS_KEY_NDGOV_STAGE: ${{ secrets.AWS_ACCESS_KEY_NDGOV_STAGE }}
-        #   AWS_SECRET_KEY_NDGOV_STAGE: ${{ secrets.AWS_SECRET_KEY_NDGOV_STAGE }}
-        env:  # Pass all secrets dynamically
-          $(for secret in ${{ toJSON(secrets) }}; do echo "$secret"; done)
+        env:
+          AWS_ACCESS_KEY_NDGOV_PROD: ${{ secrets.AWS_ACCESS_KEY_NDGOV_PROD }}
+          AWS_SECRET_KEY_NDGOV_PROD: ${{ secrets.AWS_SECRET_KEY_NDGOV_PROD }}
+          AWS_ACCESS_KEY_NDGOV_STAGE: ${{ secrets.AWS_ACCESS_KEY_NDGOV_STAGE }}
+          AWS_SECRET_KEY_NDGOV_STAGE: ${{ secrets.AWS_SECRET_KEY_NDGOV_STAGE }}
         run: |
           # Extract PROJECT_DIR and parse the account name
           PROJECT_DIR=$(echo '${{ inputs.spec }}' | jq -r '.job.runEnvVars.PROJECT_DIR')
