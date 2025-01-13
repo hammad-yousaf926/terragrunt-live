@@ -76,7 +76,7 @@ jobs:
       - name: ${{ fromJSON(github.event.inputs.spec).job_id }}
         run: echo "Job ID ${{ fromJSON(github.event.inputs.spec).job_id }}"
 
-      - uses: diggerhq/digger@vLatest
+      - uses: diggerhq/digger@v0.6.83
         with:
           digger-spec: ${{ inputs.spec }}
           setup-aws: true
@@ -87,3 +87,4 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMAND: ${{ inputs.command }}
+
