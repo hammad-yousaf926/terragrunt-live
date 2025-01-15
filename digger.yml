@@ -1,17 +1,29 @@
+traverse_to_nested_projects: true
 generate_projects:
-  terragrunt_parsing:
-    parallel: true
-    createProjectName: true
-    createWorkspace: true
-    defaultWorkflow: default
-
+  blocks:
+    - block_name: auto-generated-projects
+      include: "accounts/**"
+      workflow: default_workflow
+      terragrunt: true
+      root_dir: "accounts/"
 workflows:
-  default:
+  default_workflow:
+    env_vars:
+      state:
+        - name: AWS_ROLE_TO_ASSUME
+          value_from: TERRAGRUNT_ROLE_TO_ASSUME
+        - name: AWS_REGION
+          value: us-east-1
     plan:
       steps:
         - init
         - plan
-        - run: echo "Terragrunt plan completed!"
     apply:
       steps:
-        - apply
+        - init
+        - apply:
+            extra_args: ["-compact-warnings"]
+    workflow_configuration:
+      on_pull_request_pushed: ["digger plan"]
+      on_pull_request_closed: ["digger unlock"]
+      on_commit_to_default: ["digger apply"]

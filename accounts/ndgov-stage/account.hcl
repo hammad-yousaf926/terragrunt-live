@@ -5,5 +5,5 @@ locals {
 inputs = {
   account_id = "160319277176"
   account_name = local.account_name
-  Environment = "production"
+  Environment = "stage"
 }
