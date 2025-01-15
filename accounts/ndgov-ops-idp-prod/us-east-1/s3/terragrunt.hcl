@@ -15,7 +15,7 @@ include "root" {
 }
 
 inputs = {
-  bucket_name     = "my-unique-buckedfssdfertgdfftfdd-namedfgdfg"
+  bucket_name     = "buckedfssdfertgdfftfdd-namedfgdfg"
   acl             = "private"
   versioning      = true
   tags = {
