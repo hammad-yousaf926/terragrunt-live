@@ -76,3 +76,7 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Debug Terraform Plan
+        run: |
+          echo "Checking the generated plan file..."
+          ls -l /home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}/hammad-yousaf926-terragrunt-live-6-${{ env.project_dir }}.tfplan
