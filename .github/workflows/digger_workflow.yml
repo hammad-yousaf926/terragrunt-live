@@ -57,7 +57,7 @@ jobs:
       - name: Parse Account ID from account.hcl
         id: parse-account
         run: |
-          ACCOUNT_ID=$(grep -oP '(?<=account_id = )\d+' ${{ env.root_dir }}/account.hcl)
+          ACCOUNT_ID=$(grep -oP '(?<=account_id = ")[^"]+' ${{ env.root_dir }}/account.hcl)
           if [ -z "$ACCOUNT_ID" ]; then
             echo "Error: Unable to extract account ID"
             exit 1
