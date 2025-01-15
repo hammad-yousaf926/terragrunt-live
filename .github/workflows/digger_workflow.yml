@@ -25,11 +25,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug Spec Input
+        run: echo "Spec input: ${{ github.event.inputs.spec }}"
+
       - name: Parse Account ID from accounts.hcl
         id: parse-account
         run: |
           ACCOUNT_ID=$(grep -oP '(?<=account_id = )\d+' accounts/${{ github.event.inputs.spec }}/account.hcl)
           echo "account_id=${ACCOUNT_ID}" >> $GITHUB_ENV
+
 
       - name: Digger Run
         uses: diggerhq/digger@vLatest
