@@ -38,7 +38,7 @@ jobs:
         with:
           digger-spec: ${{ inputs.spec }}
           setup-aws: true
-          aws-role-to-assume: arn:aws-us-gov:iam::${{ env.account_id }}:role/digger
+          aws-role-to-assume: arn:aws:iam::${{ env.account_id }}:role/digger
           aws-region: us-east-1
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
