@@ -35,10 +35,6 @@ jobs:
           fi
           echo "project_dir=${PROJECT_DIR}" >> $GITHUB_ENV
 
-      - name: Debug Project Directory
-        run: |
-          echo "Project directory: ${{ env.project_dir }}"
-
       - name: Extract Root Directory
         id: extract-root-dir
         run: |
@@ -48,10 +44,6 @@ jobs:
             exit 1
           fi
           echo "root_dir=${ROOT_DIR}" >> $GITHUB_ENV
-
-      - name: Debug Root Directory
-        run: |
-          echo "Root directory: ${{ env.root_dir }}"
 
 
       - name: Parse Account ID from account.hcl
@@ -64,7 +56,10 @@ jobs:
           fi
           echo "account_id=${ACCOUNT_ID}" >> $GITHUB_ENV
 
-
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.5
 
       - name: Digger Run
         uses: diggerhq/digger@vLatest
