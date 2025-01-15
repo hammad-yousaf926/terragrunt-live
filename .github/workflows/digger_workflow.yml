@@ -68,7 +68,7 @@ jobs:
 
       - name: Run Terraform Plan
         run: |
-          terragrunt init
+          cd /home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}
           terragrunt plan -out=/home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}/hammad-yousaf926-terragrunt-live-6-${{ env.project_dir }}.tfplan
 
       - name: Debug Terraform Plan File
