@@ -65,7 +65,12 @@ jobs:
           curl -L -o terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.44.1/terragrunt_linux_amd64
           chmod +x terragrunt
           sudo mv terragrunt /usr/local/bin/
-
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.account_id }}:role/digger
+          aws-region: us-east-1
+          role-session-name: digger-session
       - name: Run Terraform Plan
         run: |
           cd /home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}
