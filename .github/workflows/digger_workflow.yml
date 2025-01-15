@@ -28,7 +28,7 @@ jobs:
       - name: Parse Account ID from accounts.hcl
         id: parse-account
         run: |
-          ACCOUNT_ID=$(grep -oP '(?<=account_id = )\d+' accounts/${{ github.event.inputs.spec }}/account.hcl)
+          ACCOUNT_ID=$(grep -oP '(?<=account_id = )\d+' accounts/account.hcl)
           echo "account_id=${ACCOUNT_ID}" >> $GITHUB_ENV
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
