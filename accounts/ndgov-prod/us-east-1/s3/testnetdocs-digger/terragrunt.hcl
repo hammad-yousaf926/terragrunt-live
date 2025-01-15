@@ -15,7 +15,7 @@ include "root" {
 }
 
 inputs = {
-  bucket_name     = "my-uniquesecond-slashnextsnx"
+  bucket_name     = "buckedfssdfer-namedfgdfg"
   acl             = "private"
   versioning      = true
   tags = {
@@ -25,4 +25,3 @@ inputs = {
   } 
 
 }
-
