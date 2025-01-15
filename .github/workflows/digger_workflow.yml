@@ -28,7 +28,12 @@ jobs:
       - name: Extract Root Directory
         id: extract-root-dir
         run: |
+          # Extract the root directory up to the second folder (e.g., accounts/ndgov-prod)
           ROOT_DIR=$(echo '${{ env.project_dir }}' | awk -F'/' '{print $1"/"$2}')
+          if [ -z "$ROOT_DIR" ]; then
+            echo "Error: Unable to determine root directory"
+            exit 1
+          fi
           echo "root_dir=${ROOT_DIR}" >> $GITHUB_ENV
 
       - name: Debug Root Directory
@@ -39,6 +44,10 @@ jobs:
         id: parse-account
         run: |
           ACCOUNT_ID=$(grep -oP '(?<=account_id = )\d+' ${{ env.root_dir }}/account.hcl)
+          if [ -z "$ACCOUNT_ID" ]; then
+            echo "Error: Unable to extract account ID"
+            exit 1
+          fi
           echo "account_id=${ACCOUNT_ID}" >> $GITHUB_ENV
 
 
