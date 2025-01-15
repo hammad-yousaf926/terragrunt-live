@@ -60,38 +60,6 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.9.8
-      - name: Install Terragrunt
-        run: |
-          curl -L -o terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.44.1/terragrunt_linux_amd64
-          chmod +x terragrunt
-          sudo mv terragrunt /usr/local/bin/
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ env.account_id }}:role/digger
-          aws-region: us-east-1
-          role-session-name: digger-session
-      - name: Run Terraform Plan
-        run: |
-          cd /home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}
-          terragrunt plan -out=/home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}/hammad-yousaf926-terragrunt-live-6-${{ env.project_dir }}.tfplan
-
-      - name: Debug Terraform Plan File
-        run: |
-          echo "Listing generated plan file:"
-          ls -lh /home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}
-          echo "Plan file content (if text):"
-          cat /home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}/hammad-yousaf926-terragrunt-live-6-${{ env.project_dir }}.tfplan || true
-
-      - name: Parse Terraform Plan
-        run: |
-          if [ -f /home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}/hammad-yousaf926-terragrunt-live-6-${{ env.project_dir }}.tfplan ]; then
-            terragrunt show -no-color -json /home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}/hammad-yousaf926-terragrunt-live-6-${{ env.project_dir }}.tfplan > /home/runner/work/terragrunt-live/terragrunt-live/${{ env.project_dir }}/plan.json
-            echo "Plan JSON successfully generated."
-          else
-            echo "Error: Plan file not found or invalid."
-            exit 1
-          fi
 
       - name: Digger Run
         uses: diggerhq/digger@vLatest
