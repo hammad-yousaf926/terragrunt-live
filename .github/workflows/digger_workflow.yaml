@@ -35,9 +35,10 @@ jobs:
 
       - name: Assume AWS Role
         env:
-          AWS_ROLE_TO_ASSUME: arn:aws:iam::${{ env.account_id }}:role/digger
+          AWS_ROLE_TO_ASSUME: arn:aws-us-gov:iam::${{ env.account_id }}:role/digger
           AWS_REGION: us-gov-west-1
-        run: echo "Assuming role: $AWS_ROLE_TO_ASSUME"
+        run: echo "Assuming role: ${{ env.AWS_ROLE_TO_ASSUME }}"
+
 
       - name: Digger Execution
         uses: diggerhq/digger@vLatest
