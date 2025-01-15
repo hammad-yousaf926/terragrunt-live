@@ -24,6 +24,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Debug Spec Input
+        run: |
+          echo "Spec input: ${{ github.event.inputs.spec }}"
 
       - name: Validate Spec Input
         run: |
