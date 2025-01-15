@@ -25,22 +25,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Parse Project Directory
-        id: parse-project-dir
+      - name: Extract Root Directory
+        id: extract-root-dir
         run: |
-          # Extract projectDir from the JSON-like spec input
-          PROJECT_DIR=$(echo '${{ github.event.inputs.spec }}' | grep -oP '(?<="projectDir":")[^"]+')
-          echo "project_dir=${PROJECT_DIR}" >> $GITHUB_ENV
+          ROOT_DIR=$(echo '${{ env.project_dir }}' | awk -F'/' '{print $1"/"$2}')
+          echo "root_dir=${ROOT_DIR}" >> $GITHUB_ENV
 
-      - name: Debug Project Directory
+      - name: Debug Root Directory
         run: |
-          echo "Project directory: ${{ env.project_dir }}"
+          echo "Root directory: ${{ env.root_dir }}"
 
       - name: Parse Account ID from account.hcl
         id: parse-account
         run: |
-          ACCOUNT_ID=$(grep -oP '(?<=account_id = )\d+' ${{ env.project_dir }}/account.hcl)
+          ACCOUNT_ID=$(grep -oP '(?<=account_id = )\d+' ${{ env.root_dir }}/account.hcl)
           echo "account_id=${ACCOUNT_ID}" >> $GITHUB_ENV
+
 
 
       - name: Digger Run
