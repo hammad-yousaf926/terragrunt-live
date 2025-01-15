@@ -24,21 +24,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Debug Spec Input
-        run: |
-          echo "Spec input: ${{ github.event.inputs.spec }}"
 
-      - name: Validate Spec Input
+      - name: Parse Project Directory
+        id: parse-project-dir
         run: |
-          if [ -z "${{ github.event.inputs.spec }}" ]; then
-            echo "Error: Spec input is required."
-            exit 1
-          fi
+          # Extract projectDir from the JSON-like spec input
+          PROJECT_DIR=$(echo '${{ github.event.inputs.spec }}' | grep -oP '(?<="projectDir":")[^"]+')
+          echo "project_dir=${PROJECT_DIR}" >> $GITHUB_ENV
 
-      - name: Parse Account ID from accounts.hcl
+      - name: Debug Project Directory
+        run: |
+          echo "Project directory: ${{ env.project_dir }}"
+
+      - name: Parse Account ID from account.hcl
         id: parse-account
         run: |
-          ACCOUNT_ID=$(grep -oP '(?<=account_id = )\d+' accounts/${{ github.event.inputs.spec }}/account.hcl)
+          ACCOUNT_ID=$(grep -oP '(?<=account_id = )\d+' ${{ env.project_dir }}/account.hcl)
           echo "account_id=${ACCOUNT_ID}" >> $GITHUB_ENV
 
 
