@@ -33,19 +33,12 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
 
-      - name: Assume AWS Role
-        env:
-          AWS_ROLE_TO_ASSUME: arn:aws-us-gov:iam::${{ env.account_id }}:role/digger
-          AWS_REGION: us-gov-west-1
-        run: echo "Assuming role: ${{ env.AWS_ROLE_TO_ASSUME }}"
-
-
-      - name: Digger Execution
+      - name: Digger Run
         uses: diggerhq/digger@vLatest
         with:
           digger-spec: ${{ inputs.spec }}
           setup-aws: true
-          aws-role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
+          aws-role-to-assume: arn:aws-us-gov:iam::${{ env.account_id }}:role/digger
           aws-region: us-east-1
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
