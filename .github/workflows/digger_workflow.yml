@@ -59,7 +59,7 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.5.5
+          terraform_version: 1.9.8
 
       - name: Digger Run
         uses: diggerhq/digger@vLatest
