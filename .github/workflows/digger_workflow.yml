@@ -25,10 +25,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Extract Project Directory
+        id: extract-project-dir
+        run: |
+          PROJECT_DIR=$(echo '${{ github.event.inputs.spec }}' | grep -oP '(?<="projectDir":")[^"]+')
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "Error: Unable to determine project directory"
+            exit 1
+          fi
+          echo "project_dir=${PROJECT_DIR}" >> $GITHUB_ENV
+
+      - name: Debug Project Directory
+        run: |
+          echo "Project directory: ${{ env.project_dir }}"
+
       - name: Extract Root Directory
         id: extract-root-dir
         run: |
-          # Extract the root directory up to the second folder (e.g., accounts/ndgov-prod)
           ROOT_DIR=$(echo '${{ env.project_dir }}' | awk -F'/' '{print $1"/"$2}')
           if [ -z "$ROOT_DIR" ]; then
             echo "Error: Unable to determine root directory"
@@ -37,8 +50,8 @@ jobs:
           echo "root_dir=${ROOT_DIR}" >> $GITHUB_ENV
 
       - name: Debug Root Directory
-        run: |
-          echo "Root directory: ${{ env.root_dir }}"
+        run: echo "Root directory: ${{ env.root_dir }}"
+
 
       - name: Parse Account ID from account.hcl
         id: parse-account
