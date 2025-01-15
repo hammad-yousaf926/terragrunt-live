@@ -50,7 +50,8 @@ jobs:
           echo "root_dir=${ROOT_DIR}" >> $GITHUB_ENV
 
       - name: Debug Root Directory
-        run: echo "Root directory: ${{ env.root_dir }}"
+        run: |
+          echo "Root directory: ${{ env.root_dir }}"
 
 
       - name: Parse Account ID from account.hcl
