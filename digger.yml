@@ -1,11 +1,17 @@
-traverse_to_nested_projects: true
 generate_projects:
-  blocks:
-    - block_name: auto-generated-projects
-      include: "accounts/**"
-      workflow: default_workflow
-      terragrunt: true
-      root_dir: "accounts/"
+  terragrunt_parsing:
+    parallel: true
+    createProjectName: true
+    createWorkspace: true
+    defaultWorkflow: default
+# traverse_to_nested_projects: true
+# generate_projects:
+#   blocks:
+#     - block_name: auto-generated-projects
+#       include: "accounts/**"
+#       workflow: default_workflow
+#       terragrunt: true
+#       root_dir: "accounts/"
 # workflows:
 #   default_workflow:
 #     env_vars:
